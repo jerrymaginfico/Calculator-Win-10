@@ -4,16 +4,16 @@ class calcController{
 	constructor(){
 
 		this._operation = [];//This one saves the operation
-		this._display;
+		this._displayCalc;
 		this.currentDate;
 		this.initialize();
 		this.initButtonsEvents(); //To work, we have to call all the events in the construtor
 	}
 
 	initialize(){//Whatever you want to happen when the calculator is loaded, you put in here
-		let displayCalc = document.querySelector("#display");
+		let displayEl  = document.querySelector("#display");
 
-		displayCalc.innerHTML = "0";
+		displayEl.innerHTML = "0";
 
 	}
 
@@ -27,10 +27,81 @@ class calcController{
 
 	}
 
+	isOperator(value){//Saves the operators
+		return	(['+','-','%','*', '/'].indexOf(value) > -1); // Verifying if it's a operator
+		
+	}
+
+	setLastOperation(value){
+		this._operation[this._operation.length - 1] = value; // changing the operator
+
+	}
+
+	pushOperator(value){//We verify the length of our array, if it's more than 3, we execute our operation
+		this._operation.push(value);
+
+		if(this._operation.length > 3){
+
+			this.calculate();
+
+		}
+	}
+
+	calculate(){//We use this method to calculate the operation
+		let last = this._operation.pop();
+
+		let result = eval(this._operation.join(""));
+
+		this._operation = [result, last];
+		this.lastNumberToDisplay();
+	}
+
+	lastNumberToDisplay(){//Were, we catch the last number in the array and we exec the operation in couples of two
+
+		let lastNumber;
+		for(let i=this._operation.length-1; i>=0; i++){
+
+			if(!this.isOperator(this._operation[i])){
+				lastNumber = this._operation[i];
+				break;
+			}
+		}
+		this.displayCalc = lastNumber;
+	}
+
 	addOperation(value){//We use this method to add an operation to calculator
 
-		this._operation.push(value);//push()-method used to add a item on array
+		if(isNaN(this.getLastOperation())){//isNaN(Is Not a Number)-return true if it's not a number, false if it's 
+			//string
+			if(this.isOperator(value)){ //Verifies if the last operation is a operator
+				this.setLastOperation(value);
+			}
+			else if(isNaN(value))
+			{
+				
+				console.log("Outra coisa : ", value);
+			}
+			else
+			{
+				this.pushOperator(value);
+				this.lastNumberToDisplay();
+			}
+		}
+		else{
+			//Number
 
+			if(this.isOperator(value)){
+				this.pushOperator(value);
+			}
+			else
+			{
+				let newValue = this.getLastOperation().toString() + value.toString();//Getting our last operation and if it's a number, He will just add that
+				this.setLastOperation(parseInt(newValue));
+
+				this.lastNumberToDisplay();
+			}
+			
+		}
 		console.log(this._operation);
 	}
 	
@@ -39,18 +110,24 @@ class calcController{
 	}
 
 	clearEntry(){
-		this._operation=pop();//pop()-used to clear the last entry on array
+		this._operation.pop();//pop()-used to clear the last entry on array
 	}
 
 	setError(){
 		this.displayCalc="Error";
 	}
 
+	getLastOperation(){//We use this one to get the last operation of the array
+
+		return this._operation[this._operation.length-1];
+
+	}
+
 	execBtn(value){//This method we use to exec the button action
 
 		switch(value){
 			case '%':
-
+					this.addOperation('%');
 				break;
 
 			case '√':
@@ -63,7 +140,7 @@ class calcController{
 				break;
 
 			case 'ce':
-						this.clearEntry();
+					this.clearEntry();
 				break;
 
 			case'c':
@@ -71,25 +148,31 @@ class calcController{
 					break;
 
 			case'delete':
+			this.clearEntry();
 				break;
 
 			case'division':
+					this.addOperation('/');
 				break;
 			
 			case'less':
+					this.addOperation('-');
 				break;
 
 			case'multiplication':
+					this.addOperation('*')
 				break;
 
 			case'plus':
+					this.addOperation('+');
 				break;
 
-			case'pless':
+			case'pless'://tratar aqui
 				break;
 
 			
 			case'comma':
+					this.addOperation(',');
 				break;
 
 			case'equal':
@@ -142,8 +225,8 @@ class calcController{
 
 	}
 
-	get display(){return this._display;}
-	set display(value){ this._display = value;}
+	get display(){return this.displayCalc;}
+	set display(value){ this.displayCalc = value;}
 
 	get currentDate(){return this._currentDate;}
 	set currentDate(value){this._currentDate = value;} 
